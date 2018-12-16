@@ -16,7 +16,7 @@ class Type(models.Model):
 
 class SubType(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
-    type = models.ManyToManyField(Type, on_delete=models.PROTECT)
+    type = models.ManyToManyField(Type)
 
     def __str__(self):
         return self.name
@@ -29,9 +29,9 @@ class CardName(models.Model):
     toughness = models.CharField(max_length=10, blank=True)
     cost = models.CharField(max_length=50)
     cmc = models.IntegerField()
-    color = models.ManyToManyField(Color, on_delete=models.PROTECT, blank=True)
-    type = models.ManyToManyField(Type, on_delete=models.PROTECT)
-    subtype = models.ManyToManyField(SubType, on_delete=models.PROTECT, blank=True)
+    color = models.ManyToManyField(Color, blank=True)
+    type = models.ManyToManyField(Type)
+    subtype = models.ManyToManyField(SubType, blank=True)
 
     def __str__(self):
         return self.name
@@ -91,6 +91,10 @@ class CardLegality(models.Model):
     format = models.ForeignKey(Format, on_delete=models.PROTECT)
     card_name = models.ForeignKey(CardName, on_delete=models.PROTECT)
     legality = models.ForeignKey(LegalityType, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return "{0} - {1} - {2}".format(self.card_name, self.format,
+                                        self.legality)
 
     class Meta:
         unique_together = ("card_name", "format")

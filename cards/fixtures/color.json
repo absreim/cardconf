@@ -1,0 +1,32 @@
+[
+  {
+    "model": "cards.Color",
+    "fields": {
+      "name": "White"
+    }
+  },
+  {
+    "model": "cards.Color",
+    "fields": {
+      "name": "Blue"
+    }
+  },
+  {
+    "model": "cards.Color",
+    "fields": {
+      "name": "Black"
+    }
+  },
+  {
+    "model": "cards.Color",
+    "fields": {
+      "name": "Red"
+    }
+  },
+  {
+    "model": "cards.Color",
+    "fields": {
+      "name": "Green"
+    }
+  }
+]

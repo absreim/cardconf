@@ -45,7 +45,7 @@ class CardName(models.Model):
     cmc = models.IntegerField()
     loyalty = models.CharField(max_length=10)
     color = models.ManyToManyField(Color, blank=True)
-    color_identity = models.ManytoManyField(Color, blank=True)
+    color_identity = models.ManyToManyField(Color, blank=True)
     type_line = models.CharField(max_length=200)
     type = models.ManyToManyField(Type)
     subtype = models.ManyToManyField(SubType, blank=True)

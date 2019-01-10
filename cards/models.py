@@ -44,8 +44,8 @@ class CardName(models.Model):
     cost = models.CharField(max_length=50)
     cmc = models.IntegerField()
     loyalty = models.CharField(max_length=10)
-    color = models.ManyToManyField(Color, blank=True)
-    color_identity = models.ManyToManyField(Color, blank=True)
+    color = models.ManyToManyField(Color, blank=True, related_name="color_colors")
+    color_identity = models.ManyToManyField(Color, blank=True, related_name="color_identity_colors")
     type_line = models.CharField(max_length=200)
     type = models.ManyToManyField(Type)
     subtype = models.ManyToManyField(SubType, blank=True)
@@ -177,8 +177,10 @@ class Ruling(models.Model):
 
 
 class FlipCardPair(models.Model):
-    day_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT)
-    night_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT)
+    day_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                      related_name="day_side_card_name")
+    night_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                        related_name="night_side_card_name")
 
     def __str__(self):
         return "Day: {0} - Night: {1}".format(self.day_side_card,
@@ -186,9 +188,12 @@ class FlipCardPair(models.Model):
 
 
 class MeldCardTriplet(models.Model):
-    top_card = models.ForeignKey(CardName, on_delete=models.PROTECT)
-    bottom_card = models.ForeignKey(CardName, on_delete=models.PROTECT)
-    meld_card = models.ForeignKey(CardName, on_delete=models.PROTECT)
+    top_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                 related_name="top_card_name")
+    bottom_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                    related_name="bottom_card_name")
+    meld_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                  related_name="meld_card_name")
 
     def __str__(self):
         if __name__ == '__main__':

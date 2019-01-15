@@ -30,9 +30,6 @@ db_cursor.execute('''CREATE TABLE cards_staging (
     layout character varying(50),
     cmc integer,
     type character varying(200),
-    supertypes jsonb,
-    types jsonb,
-    subtypes jsonb,
     rarity character varying(50),
     set character varying(10),
     set_name character varying(100),
@@ -43,9 +40,7 @@ db_cursor.execute('''CREATE TABLE cards_staging (
     power character varying(20),
     toughness character varying(20),
     loyalty character varying(20),
-    names jsonb,
     mana_cost character varying(200),
-    variations jsonb,
     image_url character varying(2000),
     watermark character varying(100),
     border character varying(20),
@@ -55,12 +50,8 @@ db_cursor.execute('''CREATE TABLE cards_staging (
     reserved boolean,
     release_date character varying(50),
     starter boolean,
-    rulings jsonb,
-    foreign_names jsonb,
-    printings jsonb,
     original_text text,
     original_type character varying(200),
-    legalities jsonb,
     source text,
     multiverse_id integer
 )''')
@@ -74,12 +65,71 @@ db_cursor.execute('''CREATE TABLE cards_color_identity_staging (
     name character varying(400),
     color character varying(20)
     )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_supertypes_staging')
+db_cursor.execute('''CREATE TABLE cards_supertypes_staging (
+    name varchar(400),
+    supertype varchar(50)
+    )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_types_staging')
+db_cursor.execute('''CREATE TABLE cards_types_staging (
+    name varchar(400),
+    types varchar(50)
+    )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_subtypes_staging')
+db_cursor.execute('''CREATE TABLE cards_subtypes_staging (
+    name varchar(400),
+    subtypes varchar(50)
+    )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_names_staging')
+db_cursor.execute('''CREATE TABLE cards_names_staging (
+    name varchar(400),
+    alt_name varchar(400)
+    )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_variations_staging')
+db_cursor.execute('''CREATE TABLE cards_variations_staging (
+    name varchar(400),
+    multiverse_id integer
+    )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_rulings_staging')
+db_cursor.execute('''CREATE TABLE cards_rulings_staging (
+    name varchar(400),
+    date varchar(20),
+    text text
+    )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_foreign_names_staging')
+db_cursor.execute('''CREATE TABLE cards_foreign_names_staging (
+    name varchar(400),
+    text text,
+    flavor text,
+    image_url varchar(2000),
+    language varchar(50),
+    multiverse_id integer
+    )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_printings_staging')
+db_cursor.execute('''CREATE TABLE cards_printings_staging (
+    name varchar(400),
+    set varchar(10)
+    )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_legalities_staging')
+db_cursor.execute('''CREATE TABLE cards_legalities_staging (
+    name varchar(400),
+    format varchar(50),
+    legality varchar(50)
+    )''')
 
-card_rows_counter = 0
 cards = data['cards']
-cards_staging_args = [None for _ in range(len(cards))]
-color_staging_args = deque()
-color_identity_staging_args = deque()
+cards_args = [None for _ in range(len(cards))]
+cards_color_args = deque()
+cards_color_identity_args = deque()
+cards_supertypes_args = deque()
+cards_types_args = deque()
+cards_subtypes_args = deque()
+cards_names_args = deque()
+cards_variations_args = deque()
+cards_rulings_args = deque()
+cards_foreign_names_args = deque()
+cards_printings_args = deque()
+cards_legalities_args = deque()
 for card_index in range(len(cards)):
     name_arg = cards[card_index]['name']
     layout_arg = cards[card_index]['layout'] if 'layout' in \
@@ -88,12 +138,6 @@ for card_index in range(len(cards)):
         cards[card_index] else None
     type_arg = cards[card_index]['type'] if 'type' in \
         cards[card_index] else ''
-    supertypes_arg = json.dumps(cards[card_index]['supertypes']) if \
-        'supertypes' in cards[card_index] else None
-    types_arg = json.dumps(cards[card_index]['types']) if \
-        'types' in cards[card_index] else None
-    subtypes_arg = json.dumps(cards[card_index]['subtypes']) if \
-        'subtypes' in cards[card_index] else None
     rarity_arg = cards[card_index]['rarity'] if 'rarity' in \
         cards[card_index] else ''
     set_arg = cards[card_index]['set'] if 'set' in \
@@ -114,12 +158,8 @@ for card_index in range(len(cards)):
         cards[card_index] else ''
     loyalty_arg = cards[card_index]['loyalty'] if 'loyalty' in \
         cards[card_index] else ''
-    names_arg = json.dumps(cards[card_index]['names']) if 'names' in \
-        cards[card_index] else None
     mana_cost_arg = cards[card_index]['manaCost'] if 'manaCost' in \
         cards[card_index] else ''
-    variations_arg = json.dumps(cards[card_index]['variations']) if \
-        'variations' in cards[card_index] else None
     image_url_arg = cards[card_index]['imageUrl'] if 'imageUrl' in \
         cards[card_index] else ''
     watermark_arg = cards[card_index]['watermark'] if 'watermark' in \
@@ -138,74 +178,125 @@ for card_index in range(len(cards)):
         'releaseDate' in cards[card_index] else ''
     starter_arg = cards[card_index]['starter'] if 'stater' in \
         cards[card_index] else False
-    rulings_arg = json.dumps(cards[card_index]['rulings']) if \
-        'rulings' in cards[card_index] else None
-    foreign_names_arg = \
-        json.dumps(cards[card_index]['foreignNames']) if \
-        'foreignNames' in cards[card_index] else None
-    printings_arg = json.dumps(cards[card_index]['printings']) if \
-        'printings' in cards[card_index] else None
     original_text_arg = cards[card_index]['originalText'] if \
         'originalText' in cards[card_index] else ''
     original_type_arg = cards[card_index]['originalType'] if \
         'originalType' in cards[card_index] else ''
-    legalities_arg = json.dumps(cards[card_index]['legalities']) if \
-        'legalities' in cards[card_index] else None
     source_arg = cards[card_index]['source'] if 'source' in \
         cards[card_index] else ''
     multiverse_id_arg = cards[card_index]['multiverseId'] if \
         'multiverseId' in cards[card_index] else None
-    cards_staging_args[card_index] = (name_arg, layout_arg, cmc_arg,
-        type_arg, supertypes_arg, types_arg, subtypes_arg, rarity_arg,
-        set_arg, set_name_arg, text_arg, flavor_arg, artist_arg,
-        number_arg, power_arg, toughness_arg, loyalty_arg, names_arg,
-        power_arg, toughness_arg, loyalty_arg, names_arg, mana_cost_arg,
-        variations_arg, image_url_arg, watermark_arg, border_arg,
-        timeshifted_arg, hand_arg, life_arg, reserved_arg,
-        release_date_arg, starter_arg, rulings_arg, foreign_names_arg,
-        printings_arg, original_text_arg, original_type_arg,
-        legalities_arg, source_arg, multiverse_id_arg)
+    cards_args[card_index] = (name_arg, layout_arg, cmc_arg,
+        type_arg, rarity_arg, set_arg, set_name_arg, text_arg, flavor_arg,
+        artist_arg, number_arg, power_arg, toughness_arg, loyalty_arg,
+        power_arg, toughness_arg, mana_cost_arg, image_url_arg, watermark_arg,
+        border_arg, timeshifted_arg, hand_arg, life_arg, reserved_arg,
+        release_date_arg, starter_arg, original_text_arg, original_type_arg,
+        source_arg, multiverse_id_arg)
     # Name does not uniquely identify a card, but that is ok for the
     # purposes of the staging table. The query the accesses the color
     # staging tables should be written to distinctly select color data.
     if 'colors' in cards[card_index]:
         for color in cards[card_index]['colors']:
-            color_staging_args.append((name_arg, color))
+            cards_color_args.append((name_arg, color))
     if 'colorIdentity' in cards[card_index]:
         for color in cards[card_index]['colorIdentity']:
-            color_identity_staging_args.append((name_arg, color))
-    if args.verbose:
-        card_rows_counter += len(cards_staging_args)
-        card_rows_counter += len(color_staging_args)
-        card_rows_counter += len(color_identity_staging_args)
-    execute_batch(db_cursor, ('INSERT INTO cards_staging (name, layout,'
-        'cmc, type, supertypes, types, subtypes, rarity, set, set_name, text,'
-        'flavor, artist, number, power, toughness, loyalty, names, mana_cost,'
-        'variations, image_url, watermark, border, timeshifted, hand, life,'
-        'reserved, release_date, starter, rulings, foreign_names, printings,'
-        'original_text, original_type, legalities, source, multiverse_id)'
-        'VALUES (%, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %,'
-        '%, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %)'),
-        cards_staging_args)
-    execute_batch(db_cursor, ('INSERT INTO cards_color_staging (name,'
-        'color) VALUES (%, %)'),list(color_staging_args))
-    execute_batch(db_cursor, ('INSERT INTO cards_color_identity_staging '
-        '(name, color) VALUES (%, %)'), list(color_identity_staging_args))
+            cards_color_identity_args.append((name_arg, color))
+    if 'supertypes' in cards[card_index]:
+        for supertype in cards[card_index]['supertypes']:
+            cards_supertypes_args.append((name_arg, supertype))
+    if 'types' in cards[card_index]:
+        for type in cards[card_index]['types']:
+            cards_types_args.append((name_arg, type))
+    if 'subtypes' in cards[card_index]:
+        for subtype in cards[card_index]['subtypes']:
+            cards_subtypes_args.append((name_arg, subtype))
+    if 'names' in cards[card_index]:
+        for alt_name in cards[card_index]['names']:
+            cards_names_args.append((name_arg, alt_name))
+    if 'variations' in cards[card_index]:
+        for multiverse_id in cards[card_index]['variations']:
+            cards_variations_args.append((name_arg, multiverse_id))
+    if 'rulings' in cards[card_index]:
+        for ruling in cards[card_index]['rulings']:
+            cards_rulings_args.append((name_arg, ruling['date'],
+                                       ruling['text']))
+    if 'foreignNames' in cards[card_index]:
+        for foreign_name in cards[card_index]['foreignNames']:
+            cards_foreign_names_args.append((name_arg, foreign_name['text'],
+                foreign_name['flavor'], foreign_name['imageUrl'],
+                foreign_name['language'], foreign_name['multiverseId']))
+    if 'printings' in cards[card_index]:
+        for printing in cards[card_index]['printing']:
+            cards_printings_args.append((name_arg, printing))
+    if 'legalities' in cards[card_index]:
+        for legality in cards[card_index]['legalities']:
+            cards_legalities_args.append((name_arg, legality['format'],
+                                          legality['legality']))
+execute_batch(db_cursor, ('INSERT INTO cards_staging (name, layout,'
+    'cmc, type, rarity, set, set_name, text,'
+    'flavor, artist, number, power, toughness, loyalty, mana_cost,'
+    'image_url, watermark, border, timeshifted, hand, life,'
+    'reserved, release_date, starter, original_text, original_type,'
+    'source, multiverse_id)'
+    'VALUES (%, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %, %,'
+    '%, %, %, %, %, %, %, %)'), cards_args)
+execute_batch(db_cursor, ('INSERT INTO cards_color_staging (name,'
+    'color) VALUES (%, %)'),list(cards_color_args))
+execute_batch(db_cursor, ('INSERT INTO cards_color_identity_staging'
+    '(name, color) VALUES (%, %)'), list(cards_color_identity_args))
+execute_batch(db_cursor, ('INSERT INTO cards_supertypes_staging'
+    '(name, supertype) VALUES (%, %)'), list(cards_supertypes_args))
+execute_batch(db_cursor, ('INSERT INTO cards_types_staging'
+    '(name, type) VALUES (%, %)'), list(cards_types_args))
+execute_batch(db_cursor, ('INSERT INTO cards_subtypes_staging'
+    '(name, subtype) VALUES (%, %)'), list(cards_subtypes_args))
+execute_batch(db_cursor, ('INSERT INTO cards_names_staging'
+    '(name, alt_name) VALUES (%, %)'), list(cards_names_args))
+execute_batch(db_cursor, ('INSERT INTO cards_variations_staging'
+    '(name, multiverse_id) VALUES (%, %)'), list(cards_variations_args))
+execute_batch(db_cursor, ('INSERT INTO cards_rulings_staging'
+    '(name, date, text) VALUES (%, %, %)'), list(cards_rulings_args))
+execute_batch(db_cursor, ('INSERT INTO cards_foreign_names_staging'
+    '(name, text, flavor, image_url, language, multiverse_id) '
+    'VALUES (%, %, %, %, %, %)'), list(cards_foreign_names_args))
+execute_batch(db_cursor, ('INSERT INTO cards_printings_staging'
+    '(name, set) VALUES (%, %)'), list(cards_printings_args))
+execute_batch(db_cursor, ('INSERT INTO cards_legalities_staging'
+    '(name, format, legality) VALUES (%, %, %)'), list(cards_legalities_args))
 if args.verbose:
-    print(f'{card_rows_counter} rows inserted.')
+    print(f'{len(cards_args)} rows inserted into cards table.')
+    print(f'{len(cards_color_args)} rows inserted into colors table.')
+    print(f'{len(cards_color_identity_args)} rows inserted into color '
+          f'identity table.')
+    print(f'{len(cards_supertypes_args)} rows inserted into supertypes '
+          f'table.')
+    print(f'{len(cards_types_args)} rows inserted into types table.')
+    print(f'{len(cards_subtypes_args)} rows inserted into subtypes table.')
+    print(f'{len(cards_names_args)} rows inserted into names table.')
+    print(f'{len(cards_variations_args)} rows inserted into variations'
+          f' table.')
+    print(f'{len(cards_rulings_args)} rows inserted into rulings table.')
+    print(f'{len(cards_foreign_names_args)} rows inserted into foreign names'
+          f' table.')
+    print(f'{len(cards_printings_args)} rows inserted into printings table.')
+    print(f'{len(cards_legalities_args)} rows inserted into legalities '
+          f'table.')
 
 if args.verbose:
     print('Refreshing formats data staging table.')
+formats = data['formats']
 db_cursor.execute('DROP TABLE IF EXISTS formats_staging')
 db_cursor.execute('CREATE TABLE formats_staging (name varchar(100))')
-formats_staging_args = list(map(lambda f: (f,), formats))
+formats_args = list(map(lambda f: (f,), formats))
 execute_batch(db_cursor, 'INSERT INTO formats_staging (name) VALUES (%)',
-              formats_staging_args)
+              formats_args)
 if args.verbose:
-    print(f'{len(formats_staging_args)} rows inserted.')
+    print(f'{len(formats_args)} rows inserted.')
 
 if args.verbose:
     print('Refreshing sets data staging table.')
+sets = data['sets']
 db_cursor.execute('DROP TABLE IF EXISTS sets_staging')
 db_cursor.execute('''CREATE TABLE sets_staging (
     name varchar(100),
@@ -220,7 +311,7 @@ db_cursor.execute('''CREATE TABLE sets_staging (
     online_only boolean,
     booster jsonb)
     ''')
-sets_staging_args = list(map(lambda set: (
+sets_args = list(map(lambda set: (
     set['name'],
     set['block'] if 'block' in set else '',
     set['code'] if 'code' in set else '',
@@ -233,39 +324,42 @@ sets_staging_args = list(map(lambda set: (
     set['online_only'] if 'online_only' in set else False,
     json.dumps(set['booster']) if 'booster' in set else None
 ), sets))
-db_cursor.execute(('INSERT INTO sets_staging (name, block, code,'
+execute_batch(db_cursor, ('INSERT INTO sets_staging (name, block, code,'
     'gatherer_code, old_code, magic_cards_info_code, release_date, border,'
     'expansion, online_only, booster) VALUES (%, %, %, %, %, %, %, %, %, %,'
-    '%)'), sets_staging_args)
+    '%)'), sets_args)
 if args.verbose:
-    print(f'{len(sets_staging_args)} rows inserted.')
+    print(f'{len(sets_args)} rows inserted.')
 
 if args.verbose:
     print('Refreshing subtypes staging table.')
+subtypes = data['subtypes']
 db_cursor.execute('DROP TABLE IF EXISTS subtypes_staging')
 db_cursor.execute('CREATE TABLE subtypes_staging (name varchar(50))')
-subtypes_staging_args = list(map(lambda st: (st,), subtypes))
+subtypes_args = list(map(lambda st: (st,), subtypes))
 execute_batch(db_cursor, 'INSERT INTO subtypes_staging (name) VALUES (%)',
-              subtypes_staging_args)
+              subtypes_args)
 if args.verbose:
-    print(f'{len(subtypes_staging_args)} rows inserted.')
+    print(f'{len(subtypes_args)} rows inserted.')
 
 if args.verbose:
     print('Refreshing supertypes staging table.')
+supertypes = data['supertypes']
 db_cursor.execute('DROP TABLE IF EXISTS supertypes_staging')
 db_cursor.execute('CREATE TABLE supertypes_staging (name varchar(50))')
-supertypes_staging_args = list(map(lambda st: (st,), supertypes))
+supertypes_args = list(map(lambda st: (st,), supertypes))
 execute_batch(db_cursor, 'INSERT INTO supertypes_staging (name) VALUES (%)',
-              supertypes_staging_args)
+              supertypes_args)
 if args.verbose:
-    print(f'{len(subtypes_staging_args)} rows inserted.')
+    print(f'{len(subtypes_args)} rows inserted.')
 
 if args.verbose:
     print('Refreshing types staging table.')
+types = data['types']
 db_cursor.execute('DROP TABLE IF EXISTS types_staging')
 db_cursor.execute('CREATE TABLE types_staging (name varchar(50))')
-types_staging_args = list(map(lambda t: (t,), types))
+types_args = list(map(lambda t: (t,), types))
 execute_batch(db_cursor, 'INSERT INTO types_staging (name) VALUES (%)',
-              types_staging_args)
+              types_args)
 if args.verbose:
-    print(f'{len(types_staging_args)} rows inserted.')
+    print(f'{len(types_args)} rows inserted.')

@@ -14,7 +14,7 @@ class Layout(models.Model):
         return self.name
 
 
-class SuperType(models.Model):
+class Supertype(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
 
     def __str__(self):
@@ -28,7 +28,7 @@ class Type(models.Model):
         return self.name
 
 
-class SubType(models.Model):
+class Subtype(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
 
     def __str__(self):
@@ -44,12 +44,12 @@ class CardName(models.Model):
     cost = models.CharField(max_length=50)
     cmc = models.IntegerField()
     loyalty = models.CharField(max_length=10)
-    color = models.ManyToManyField(Color, blank=True)
-    color_identity = models.ManyToManyField(Color, blank=True)
+    color = models.ManyToManyField(Color, blank=True, related_name="color_colors")
+    color_identity = models.ManyToManyField(Color, blank=True, related_name="color_identity_colors")
     type_line = models.CharField(max_length=200)
     type = models.ManyToManyField(Type)
-    subtype = models.ManyToManyField(SubType, blank=True)
-    supertype = models.ManyToManyField(SuperType, blank=True)
+    subtype = models.ManyToManyField(Subtype, blank=True)
+    supertype = models.ManyToManyField(Supertype, blank=True)
     reserved = models.BooleanField()
 
     def __str__(self):
@@ -136,10 +136,10 @@ class LegalityType(models.Model):
         return self.name
 
 
-class LegalityExceptions(models.Model):
+class Legality(models.Model):
     format = models.ForeignKey(Format, on_delete=models.PROTECT)
     card_name = models.ForeignKey(CardName, on_delete=models.PROTECT)
-    legality = models.ForeignKey(LegalityType, on_delete=models.PROTECT)
+    type = models.ForeignKey(LegalityType, on_delete=models.PROTECT)
 
     def __str__(self):
         return "{0} - {1} - {2}".format(self.card_name, self.format,
@@ -166,6 +166,9 @@ class ForeignName(models.Model):
         return "{0} - {1} - {2}".format(self.english_name, self.foreign_name,
                                         self.language)
 
+    class Meta:
+        unique_together = ("english_name", "language")
+
 
 class Ruling(models.Model):
     card_name = models.ForeignKey(CardName, on_delete=models.PROTECT)
@@ -175,23 +178,38 @@ class Ruling(models.Model):
     def __str__(self):
         return "Ruling: {0} - {1}".format(self.card_name, self.date)
 
+    class Meta:
+        unique_together = ("card_name", "text")
+
 
 class FlipCardPair(models.Model):
-    day_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT)
-    night_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT)
+    day_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                      related_name="day_side_card_name")
+    night_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                        related_name="night_side_card_name")
 
     def __str__(self):
         return "Day: {0} - Night: {1}".format(self.day_side_card,
                                               self.night_side_card)
 
+    class Meta:
+        unique_together = ("day_side_card", "night_side_card")
+
 
 class MeldCardTriplet(models.Model):
-    top_card = models.ForeignKey(CardName, on_delete=models.PROTECT)
-    bottom_card = models.ForeignKey(CardName, on_delete=models.PROTECT)
-    meld_card = models.ForeignKey(CardName, on_delete=models.PROTECT)
+    top_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                 related_name="top_card_name")
+    bottom_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                    related_name="bottom_card_name")
+    meld_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                  related_name="meld_card_name")
 
     def __str__(self):
         if __name__ == '__main__':
             return "Top: {0} - Bottom: {1} - Meld: {2}".format(
                 self.top_card, self.bottom_card, self.meld_card
             )
+
+    class Meta:
+        unique_together = ("top_card", "bottom_card", "meld_card")
+

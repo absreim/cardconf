@@ -44,12 +44,14 @@ class CardName(models.Model):
     cost = models.CharField(max_length=50)
     cmc = models.IntegerField()
     loyalty = models.CharField(max_length=10)
-    color = models.ManyToManyField(Color, blank=True, related_name="color_colors")
-    color_identity = models.ManyToManyField(Color, blank=True, related_name="color_identity_colors")
+    color = models.ManyToManyField(Color, blank=True, null=True,
+        related_name="color_colors")
+    color_identity = models.ManyToManyField(Color, blank=True, null=True,
+        related_name="color_identity_colors")
     type_line = models.CharField(max_length=200)
     type = models.ManyToManyField(Type)
-    subtype = models.ManyToManyField(Subtype, blank=True)
-    supertype = models.ManyToManyField(Supertype, blank=True)
+    subtype = models.ManyToManyField(Subtype, blank=True, null=True)
+    supertype = models.ManyToManyField(Supertype, blank=True, null=True)
     reserved = models.BooleanField()
 
     def __str__(self):
@@ -105,10 +107,10 @@ class Edition(models.Model):
     expansion_name = models.ForeignKey(Expansion, on_delete=models.PROTECT)
     artist = models.ForeignKey(Artist, on_delete=models.PROTECT)
     number = models.CharField(max_length=10)
-    image_url = models.CharField(max_length=200)
+    image_url = models.CharField(max_length=200, blank=True)
     flavor_text = models.TextField(blank=True)
     rarity = models.ForeignKey(Rarity, on_delete=models.PROTECT)
-    multiverse_id = models.IntegerField()
+    multiverse_id = models.IntegerField(blank=True, null=True)
     watermark = models.ForeignKey(Watermark, on_delete=models.PROTECT,
                                   blank=True, null=True)
     border = models.ForeignKey(Border, on_delete=models.PROTECT)
@@ -160,7 +162,7 @@ class ForeignName(models.Model):
     english_name = models.ForeignKey(CardName, on_delete=models.PROTECT)
     foreign_name = models.CharField(max_length=400)
     language = models.ForeignKey(Language, on_delete=models.PROTECT)
-    multiverse_id = models.IntegerField()
+    multiverse_id = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return "{0} - {1} - {2}".format(self.english_name, self.foreign_name,
@@ -205,10 +207,9 @@ class MeldCardTriplet(models.Model):
                                   related_name="meld_card_name")
 
     def __str__(self):
-        if __name__ == '__main__':
-            return "Top: {0} - Bottom: {1} - Meld: {2}".format(
-                self.top_card, self.bottom_card, self.meld_card
-            )
+        return "Top: {0} - Bottom: {1} - Meld: {2}".format(
+            self.top_card, self.bottom_card, self.meld_card
+        )
 
     class Meta:
         unique_together = ("top_card", "bottom_card", "meld_card")

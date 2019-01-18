@@ -91,23 +91,55 @@ with open(f'{args.dir}/subtype.json', 'w') as f:
 if args.verbose:
     print(f'{len(subtype_entries)} entries generated for type.json.')
 
-db_cursor.execute('''select deduped_cards_staging.name, max(layout), 
+if args.verbose:
+    print('Generating fixture for CardName model.')
+db_cursor.execute('''SELECT deduped_cards_staging.name, max(layout), 
 max(text), max(power), max(toughness), max(mana_cost), max(cmc), 
 max(loyalty), array_agg(deduped_cards_color_staging.color), 
 array_agg(deduped_cards_color_identity_staging.color), 
 max(deduped_cards_staging.type), array_agg(deduped_cards_types_staging.type),
-array_agg(subtype), array_agg(supertype), bool_or(reserved) from 
-(select distinct on (name) * from cards_staging) as deduped_cards_staging 
-join (select distinct on (name, color) * from cards_color_staging) as 
-deduped_cards_color_staging on deduped_cards_staging.name = 
-deduped_cards_color_staging.name join (select distinct on (name, color) * 
-from cards_color_identity_staging) as deduped_cards_color_identity_staging on 
-deduped_cards_staging.name = deduped_cards_color_identity_staging.name join 
-(select distinct on (name, type) * from cards_types_staging) as 
-deduped_cards_types_staging on deduped_cards_staging.name = 
-deduped_cards_types_staging.name join (select distinct on (name, subtype) * 
-from cards_subtypes_staging) as deduped_cards_subtypes_staging on 
-deduped_cards_staging.name = deduped_cards_subtypes_staging.name join 
-(select distinct on (name, supertype) * from cards_supertypes_staging) as 
-deduped_cards_supertypes_staging on deduped_cards_staging.name = 
-deduped_cards_supertypes_staging.name group by deduped_cards_staging.name''')
+array_agg(SUBTYPE), array_agg(supertype), bool_or(reserved) 
+FROM (SELECT DISTINCT ON (name) * FROM cards_staging) AS 
+    deduped_cards_staging
+LEFT JOIN (SELECT DISTINCT ON (name, color) * from cards_color_staging) AS 
+    deduped_cards_color_staging ON deduped_cards_staging.name = 
+    deduped_cards_color_staging.name 
+LEFT JOIN (SELECT DISTINCT ON (name, color) * FROM 
+    cards_color_identity_staging) AS deduped_cards_color_identity_staging 
+    ON deduped_cards_staging.name = 
+    deduped_cards_color_identity_staging.name 
+JOIN (SELECT DISTINCT ON (name, type) * FROM cards_types_staging) AS 
+    deduped_cards_types_staging on deduped_cards_staging.name = 
+    deduped_cards_types_staging.name 
+LEFT JOIN (SELECT DISTINCT ON (name, subtype) * FROM cards_subtypes_staging) AS
+    deduped_cards_subtypes_staging ON 
+    deduped_cards_staging.name = deduped_cards_subtypes_staging.name 
+LEFT JOIN (SELECT DISTINCT ON (name, supertype) * FROM 
+    cards_supertypes_staging) AS deduped_cards_supertypes_staging ON 
+    deduped_cards_staging.name = deduped_cards_supertypes_staging.name 
+GROUP BY deduped_cards_staging.name''')
+card_name_rows = db_cursor.fetchall()
+card_name_entries = list(map(lambda c: {
+    'model': 'cards.CardName',
+    'fields': {
+        'name': c[0],
+        'layout': c[1],
+        'rules_text': c[2],
+        'power': c[3],
+        'toughness': c[4],
+        'cost': c[5],
+        'cmc': c[6],
+        'loyalty': c[7],
+        'color': c[8],
+        'color_identity': c[9],
+        'type_line': c[10],
+        'type': c[11],
+        'subtype': c[12],
+        'supertype': c[13],
+        'reserved': c[14]
+    }
+}, card_name_rows))
+with open(f'{args.dir}/card_name.json', 'w') as f:
+    json.dump(card_name_entries,f)
+if args.verbose:
+    print(f'{len(card_name_entries)} entries generated for card_name.json.')

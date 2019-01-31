@@ -5,7 +5,7 @@ import json
 parser = argparse.ArgumentParser()
 parser.add_argument('dir', help='Directory to write output files.',
                     type=str, default='../fixtures')
-parser.add_argument('--verbose', help='Print progress messages.',
+parser.add_argument('-v', '--verbose', help='Print progress messages.',
                     action='store_true')
 args = parser.parse_args()
 
@@ -143,3 +143,17 @@ with open(f'{args.dir}/card_name.json', 'w') as f:
     json.dump(card_name_entries,f)
 if args.verbose:
     print(f'{len(card_name_entries)} entries generated for card_name.json.')
+
+if args.verbose:
+    print('Generating fixture for Block model.')
+db_cursor.execute('SELECT DISTINCT block FROM sets_staging')
+block_rows = db_cursor.fetchall()
+block_entries = list(map(lambda b: {
+    'model': 'cards.Block',
+    'fields': {
+        'name': b[0]
+    }
+}, block_rows))
+
+if args.verbose:
+    print('Generating fixture for Expansion model.')

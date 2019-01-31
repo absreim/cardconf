@@ -9,7 +9,7 @@ DB_CONN_STRING = 'dbname=cardconf'
 parser = argparse.ArgumentParser()
 parser.add_argument('file', help='Path to file containing cards data.',
                     type=str, nargs='?', default='cards_data.json')
-parser.add_argument('--verbose', help='Print progress messages.',
+parser.add_argument('-v', '--verbose', help='Print progress messages.',
                     action='store_true')
 args = parser.parse_args()
 

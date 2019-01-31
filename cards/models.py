@@ -68,7 +68,7 @@ class Block(models.Model):
 class Expansion(models.Model):
     name = models.CharField(max_length=100, primary_key=True)
     block = models.ForeignKey(Block, on_delete=models.PROTECT,
-                              blank=True, null=True)
+                              blank=True)
 
     def __str__(self):
         return self.name

@@ -5,7 +5,7 @@ import json
 parser = argparse.ArgumentParser()
 parser.add_argument('file', help='Name of file to write output data.',
                     type=str, nargs='?', default='cards_data.json')
-parser.add_argument('--verbose', help='Print progress messages.',
+parser.add_argument('-v', '--verbose', help='Print progress messages.',
                     action='store_true')
 args = parser.parse_args()
 

@@ -27,7 +27,7 @@ color_entries = list(map(lambda c: {
     }
 }, color_rows))
 with open(f'{args.dir}/color.json', 'w') as f:
-    json.dump(color_entries,f)
+    json.dump(color_entries, f)
 if args.verbose:
     print(f'{len(color_entries)} entries generated for color.json.')
 
@@ -42,7 +42,7 @@ layout_entries = list(map(lambda l: {
     }
 }, layout_rows))
 with open(f'{args.dir}/layout.json', 'w') as f:
-    json.dump(layout_entries,f)
+    json.dump(layout_entries, f)
 if args.verbose:
     print(f'{len(layout_entries)} entries generated for layout.json.')
 
@@ -57,7 +57,7 @@ supertype_entries = list(map(lambda s: {
     }
 }, supertype_rows))
 with open(f'{args.dir}/supertype.json', 'w') as f:
-    json.dump(supertype_entries,f)
+    json.dump(supertype_entries, f)
 if args.verbose:
     print(f'{len(supertype_entries)} entries generated for supertype.json.')
 
@@ -72,7 +72,7 @@ type_entries = list(map(lambda t: {
     }
 }, type_rows))
 with open(f'{args.dir}/type.json', 'w') as f:
-    json.dump(type_entries,f)
+    json.dump(type_entries, f)
 if args.verbose:
     print(f'{len(type_entries)} entries generated for type.json.')
 
@@ -87,7 +87,7 @@ subtype_entries = list(map(lambda s: {
     }
 }, subtype_rows))
 with open(f'{args.dir}/subtype.json', 'w') as f:
-    json.dump(subtype_entries,f)
+    json.dump(subtype_entries, f)
 if args.verbose:
     print(f'{len(subtype_entries)} entries generated for type.json.')
 
@@ -98,7 +98,7 @@ max(text), max(power), max(toughness), max(mana_cost), max(cmc),
 max(loyalty), array_agg(deduped_cards_color_staging.color), 
 array_agg(deduped_cards_color_identity_staging.color), 
 max(deduped_cards_staging.type), array_agg(deduped_cards_types_staging.type),
-array_agg(SUBTYPE), array_agg(supertype), bool_or(reserved) 
+array_agg(subtype), array_agg(supertype), bool_or(reserved) 
 FROM (SELECT DISTINCT ON (name) * FROM cards_staging) AS 
     deduped_cards_staging
 LEFT JOIN (SELECT DISTINCT ON (name, color) * from cards_color_staging) AS 
@@ -140,7 +140,7 @@ card_name_entries = list(map(lambda c: {
     }
 }, card_name_rows))
 with open(f'{args.dir}/card_name.json', 'w') as f:
-    json.dump(card_name_entries,f)
+    json.dump(card_name_entries, f)
 if args.verbose:
     print(f'{len(card_name_entries)} entries generated for card_name.json.')
 
@@ -154,6 +154,111 @@ block_entries = list(map(lambda b: {
         'name': b[0]
     }
 }, block_rows))
+with open(f'{args.dir}/block.json', 'w') as f:
+    json.dump(block_entries, f)
+if args.verbose:
+    print(f'{len(block_entries)} entries generated for block.json.')
 
 if args.verbose:
     print('Generating fixture for Expansion model.')
+db_cursor.execute('SELECT DISTINCT name, block FROM sets_staging')
+expansion_rows = db_cursor.fetchall()
+expansion_entries = list(map(lambda e: {
+    'model': 'cards.Expansion',
+    'fields': {
+        'name': e[0],
+        'block': e[1]
+    }
+}, expansion_rows))
+with open(f'{args.dir}/expansion.json', 'w') as f:
+    json.dump(expansion_entries, f)
+if args.verbose:
+    print(f'{len(expansion_entries)} entries generated for expansion.json.')
+
+if args.verbose:
+    print('Generating fixture for Rarity model.')
+db_cursor.execute('SELECT DISTINCT rarity FROM cards_staging')
+rarity_rows = db_cursor.fetchall()
+rarity_entries = list(map(lambda r: {
+    'model': 'cards.Rarity',
+    'fields': {
+        'name': r[0]
+    }
+}, rarity_rows))
+with open(f'{args.dir}/rarity.json', 'w') as f:
+    json.dump(rarity_entries, f)
+if args.verbose:
+    print(f'{len(rarity_entries)} entries generated for rarity.json.')
+
+if args.verbose:
+    print('Generating fixture for Artist model.')
+db_cursor.execute('SELECT DISTINCT artist FROM cards_staging')
+artist_rows = db_cursor.fetchall()
+artist_entries = list(map(lambda a: {
+    'model': 'cards.Artist',
+    'fields': {
+        'name': a[0]
+    }
+}, artist_rows))
+with open(f'{args.dir}/artist.json', 'w') as f:
+    json.dump(artist_entries, f)
+if args.verbose:
+    print(f'{len(artist_entries)} entries generated for artist.json.')
+
+if args.verbose:
+    print('Generating fixture for Watermark model.')
+db_cursor.execute('SELECT DISTINCT watermark FROM cards_staging')
+watermark_rows = db_cursor.fetchall()
+watermark_entries = list(map(lambda w: {
+    'model': 'cards.Watermark',
+    'fields': {
+        'name': w[0]
+    }
+}, watermark_rows))
+with open(f'{args.dir}/watermark.json', 'w') as f:
+    json.dump(watermark_entries, f)
+if args.verbose:
+    print(f'{len(watermark_entries)} entries generated for watermark.json.')
+
+if args.verbose:
+    print('Generating fixture for Border model.')
+db_cursor.execute('SELECT DISTINCT border FROM cards_staging')
+border_rows = db_cursor.fetchall()
+border_entries = list(map(lambda b: {
+    'model': 'cards.Border',
+    'fields': {
+        'name': b[0]
+    }
+}, border_rows))
+with open(f'{args.dir}/border.json', 'w') as f:
+    json.dump(border_entries, f)
+if args.verbose:
+    print(f'{len(border_entries)} entries generated for border.json.')
+
+if args.verbose:
+    print('Generating fixture for Edition model.')
+db_cursor.execute('''SELECT DISTINCT name, set_name, artist, number, image_url,
+flavor, rarity, multiverse_id, watermark, border, source, release_date
+FROM cards_staging''')
+edition_rows = db_cursor.fetchall()
+edition_entries = list(map(lambda e: {
+    'model': 'cards.Edition',
+    'fields': {
+        'card_name': e[0],
+        'expansion_name': e[1],
+        'artist': e[2],
+        'number': e[3],
+        'image_url': e[4],
+        'flavor_text': e[5],
+        'rarity': e[6],
+        'multiverse_id': e[7],
+        'watermark': e[8],
+        'border': e[9],
+        'source': e[10],
+        'promo_release_date': e[11]
+    }
+}, edition_rows))
+with open(f'{args.dir}/edition.json', 'w') as f:
+    json.dump(edition_entries, f)
+if args.verbose:
+    print(f'{len(edition_entries)} entries generated for edition.json.')

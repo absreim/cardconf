@@ -262,3 +262,34 @@ with open(f'{args.dir}/edition.json', 'w') as f:
     json.dump(edition_entries, f)
 if args.verbose:
     print(f'{len(edition_entries)} entries generated for edition.json.')
+
+if args.verbose:
+    print('Generating fixture for Format model.')
+db_cursor.execute('''SELECT DISTINCT name FROM formats_staging''')
+format_rows = db_cursor.fetchall()
+format_entries = list(map(lambda f: {
+    'model': 'cards.Format',
+    'fields': {
+        'name': f[0]
+    }
+}, format_rows))
+with open(f'{args.dir}/format.json', 'w') as f:
+    json.dump(format_entries, f)
+if args.verbose:
+    print(f'{len(format_entries)} entries generated for format.json.')
+
+if args.verbose:
+    print('Generating fixture for LegalityType model.')
+db_cursor.execute('''SELECT DISTINCT legality FROM cards_legalities_staging''')
+legality_type_rows = db_cursor.fetchall()
+legality_type_entries = list(map(lambda l: {
+    'model': 'cards.LegalityType',
+    'fields': {
+        'name': l[0]
+    }
+}, legality_type_rows))
+with open(f'{args.dir}/legality_type.json'):
+    json.dump(legality_type_entries, f)
+if args.verbose:
+    print(f'{len(legality_type_entries)} entries generated for legality_type.json.')
+

@@ -243,7 +243,7 @@ def border_generator(row):
 generate_fixture_for_model('Border', 'border', border_query, border_generator)
 
 edition_query = '''SELECT DISTINCT name, set_name, artist, number, image_url,
-flavor, rarity, multiverse_id, watermark, border, source, release_date
+flavor, rarity, multiverse_id, watermark, border, source, release_date, id
 FROM cards_staging'''
 
 
@@ -262,7 +262,8 @@ def edition_generator(row):
             'watermark': row[8],
             'border': row[9],
             'source': row[10],
-            'promo_release_date': row[11]
+            'promo_release_date': row[11],
+            'id': row[12]
         }
     }
 
@@ -301,4 +302,39 @@ generate_fixture_for_model('LegalityType', 'legality_type',
                            legality_type_query, legality_type_generator)
 
 
+legality_query = '''SELECT DISTINCT name, format, legality 
+FROM cards_legalities_staging '''
 
+
+def legality_generator(row):
+    return {
+        'model': 'cards.Legality',
+        'fields': {
+            'card_name': row[0],
+            'format': row[1],
+            'legality': row[2]
+        }
+    }
+
+
+generate_fixture_for_model('Legality', 'legality', legality_query,
+                           legality_generator)
+
+language_query = 'SELECT DISTINCT language FROM cards_foreign_names_staging'
+
+
+def language_generator(row):
+    return {
+        'model': 'cards.Language',
+        'fields': {
+            'name': row[0]
+        }
+    }
+
+
+generate_fixture_for_model('Language', 'language', language_query,
+                           language_generator)
+
+foreign_name_query = '''SELECT DISTINCT id, foreign_name, language,
+multiverse_id, rules_text, flavor_text, image_url FROM 
+cards_foreign_names_staging'''

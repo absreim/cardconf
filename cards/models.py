@@ -116,12 +116,10 @@ class Edition(models.Model):
     border = models.ForeignKey(Border, on_delete=models.PROTECT)
     source = models.TextField(blank=True)
     promo_release_date = models.CharField(max_length=20, blank=True)
+    id = models.CharField(max_length=100, primary_key=True)
 
     def __str__(self):
         return "{0} - {1}".format(self.card_name, self.expansion_name)
-
-    class Meta:
-        unique_together = ("card_name", "expansion_name", "number")
 
 
 class Format(models.Model):
@@ -158,18 +156,21 @@ class Language(models.Model):
         return self.name
 
 
-class ForeignName(models.Model):
-    english_name = models.ForeignKey(CardName, on_delete=models.PROTECT)
+class ForeignVersion(models.Model):
+    edition = models.ForeignKey(Edition, on_delete=models.PROTECT)
     foreign_name = models.CharField(max_length=400)
     language = models.ForeignKey(Language, on_delete=models.PROTECT)
     multiverse_id = models.IntegerField(blank=True, null=True)
+    rules_text = models.TextField(blank=True)
+    flavor_text = models.TextField(blank=True)
+    image_url = models.CharField(max_length=200, blank=True)
+
 
     def __str__(self):
-        return "{0} - {1} - {2}".format(self.english_name, self.foreign_name,
-                                        self.language)
+        return "{0} - {1}".format(self.foreign_name, self.language)
 
     class Meta:
-        unique_together = ("english_name", "language")
+        unique_together = ("edition", "language")
 
 
 class Ruling(models.Model):

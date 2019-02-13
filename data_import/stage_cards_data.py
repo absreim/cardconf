@@ -100,11 +100,12 @@ db_cursor.execute('''CREATE TABLE cards_rulings_staging (
     )''')
 db_cursor.execute('DROP TABLE IF EXISTS cards_foreign_names_staging')
 db_cursor.execute('''CREATE TABLE cards_foreign_names_staging (
-    name varchar(400),
+    id varchar(100),
+    foreign_name varchar(400),
     text text,
     flavor text,
     image_url varchar(2000),
-    language varchar(50),
+    language varchar(100),
     multiverse_id integer
     )''')
 db_cursor.execute('DROP TABLE IF EXISTS cards_printings_staging')
@@ -227,9 +228,12 @@ for card_index in range(len(cards)):
                                        ruling['text']))
     if 'foreignNames' in cards[card_index]:
         for foreign_name in cards[card_index]['foreignNames']:
-            cards_foreign_names_args.append((name_arg, foreign_name['text'],
-                foreign_name['flavor'], foreign_name['imageUrl'],
-                foreign_name['language'], foreign_name['multiverseid']))
+            cards_foreign_names_args.append((
+                id_arg, foreign_name['name'],
+                foreign_name['text'], foreign_name['flavor'],
+                foreign_name['imageUrl'], foreign_name['language'],
+                foreign_name['multiverseid']
+            ))
     if 'printings' in cards[card_index]:
         for printing in cards[card_index]['printings']:
             cards_printings_args.append((name_arg, printing))
@@ -262,8 +266,8 @@ execute_batch(db_cursor, ('INSERT INTO cards_variations_staging'
 execute_batch(db_cursor, ('INSERT INTO cards_rulings_staging'
     '(name, date, text) VALUES (%s, %s, %s)'), list(cards_rulings_args))
 execute_batch(db_cursor, ('INSERT INTO cards_foreign_names_staging'
-    '(name, text, flavor, image_url, language, multiverse_id) '
-    'VALUES (%s, %s, %s, %s, %s, %s)'), list(cards_foreign_names_args))
+    '(id, foreign_name, text, flavor, image_url, language, multiverse_id)'
+    'VALUES (%s, %s, %s, %s, %s, %s, %s)'), list(cards_foreign_names_args))
 execute_batch(db_cursor, ('INSERT INTO cards_printings_staging'
     '(name, set) VALUES (%s, %s)'), list(cards_printings_args))
 execute_batch(db_cursor, ('INSERT INTO cards_legalities_staging'

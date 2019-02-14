@@ -335,6 +335,41 @@ def language_generator(row):
 generate_fixture_for_model('Language', 'language', language_query,
                            language_generator)
 
-foreign_name_query = '''SELECT DISTINCT id, foreign_name, language,
+foreign_version_query = '''SELECT DISTINCT id, foreign_name, language,
 multiverse_id, rules_text, flavor_text, image_url FROM 
 cards_foreign_names_staging'''
+
+
+def foreign_version_generator(row):
+    return {
+        'model': 'cards.ForeignVersion',
+        'fields': {
+            'edition': row[0],
+            'foreign_name': row[1],
+            'language': row[2],
+            'multiverse_id': row[3],
+            'rules_text': row[4],
+            'flavor_text': row[5],
+            'image_url': row[6]
+        }
+    }
+
+
+generate_fixture_for_model('ForeignVersion', 'foreign_version',
+                           foreign_version_query, foreign_version_generator)
+
+ruling_query = 'SELECT DISTINCT name, date, text FROM cards_rulings_staging'
+
+
+def ruling_generator(row):
+    return {
+        'model': 'cards.Ruling',
+        'fields': {
+            'card_name': row[0],
+            'date': row[1],
+            'text': row[2]
+        }
+    }
+
+
+generate_fixture_for_model('Ruling', 'ruling', ruling_query, ruling_generator)

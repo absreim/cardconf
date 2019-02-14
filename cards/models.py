@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Color(models.Model):
     name = models.CharField(max_length=20, primary_key=True)
 
@@ -45,9 +46,10 @@ class CardName(models.Model):
     cmc = models.IntegerField()
     loyalty = models.CharField(max_length=10)
     color = models.ManyToManyField(Color, blank=True, null=True,
-        related_name="color_colors")
-    color_identity = models.ManyToManyField(Color, blank=True, null=True,
-        related_name="color_identity_colors")
+                                   related_name="color_colors")
+    color_identity = models.ManyToManyField(
+        Color, blank=True, null=True, related_name="color_identity_colors"
+    )
     type_line = models.CharField(max_length=200)
     type = models.ManyToManyField(Type)
     subtype = models.ManyToManyField(Subtype, blank=True, null=True)
@@ -164,7 +166,6 @@ class ForeignVersion(models.Model):
     rules_text = models.TextField(blank=True)
     flavor_text = models.TextField(blank=True)
     image_url = models.CharField(max_length=200, blank=True)
-
 
     def __str__(self):
         return "{0} - {1}".format(self.foreign_name, self.language)

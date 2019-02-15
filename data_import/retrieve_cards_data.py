@@ -20,6 +20,8 @@ TYPES_URL = BASE_URL + 'types'
 if args.verbose:
     print('Retrieving cards data.')
 first_cards_request = requests.get(CARDS_URL)
+if args.verbose:
+    print('Retrieved first page of cards data.')
 page_size = int(first_cards_request.headers['Page-Size'])
 total_count = int(first_cards_request.headers['Total-Count'])
 num_pages = total_count // page_size

@@ -82,11 +82,6 @@ db_cursor.execute('''CREATE TABLE cards_subtypes_staging (
     name varchar(400),
     subtype varchar(50)
     )''')
-db_cursor.execute('DROP TABLE IF EXISTS cards_names_staging')
-db_cursor.execute('''CREATE TABLE cards_names_staging (
-    name varchar(400),
-    alt_name varchar(400)
-    )''')
 db_cursor.execute('DROP TABLE IF EXISTS cards_variations_staging')
 db_cursor.execute('''CREATE TABLE cards_variations_staging (
     name varchar(400),
@@ -119,6 +114,17 @@ db_cursor.execute('''CREATE TABLE cards_legalities_staging (
     format varchar(50),
     legality varchar(50)
     )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_pairs_staging')
+db_cursor.execute('''CREATE TABLE cards_pairs_staging (
+    first_card_name varchar(400),
+    second_card_name varchar(400)
+    )''')
+db_cursor.execute('DROP TABLE IF EXISTS cards_triplets_staging')
+db_cursor.execute('''CREATE TABLE cards_triplets_staging (
+    first_card_name varchar(400),
+    second_card_name varchar(400),
+    third_card_name varchar(400)
+    )''')
 
 cards = data['cards']
 cards_args = [None for _ in range(len(cards))]
@@ -127,7 +133,8 @@ cards_color_identity_args = deque()
 cards_supertypes_args = deque()
 cards_types_args = deque()
 cards_subtypes_args = deque()
-cards_names_args = deque()
+cards_pairs_args = deque()
+cards_triplets_args = deque()
 cards_variations_args = deque()
 cards_rulings_args = deque()
 cards_foreign_names_args = deque()
@@ -217,8 +224,11 @@ for card_index in range(len(cards)):
         for subtype in cards[card_index]['subtypes']:
             cards_subtypes_args.append((name_arg, subtype))
     if 'names' in cards[card_index]:
-        for alt_name in cards[card_index]['names']:
-            cards_names_args.append((name_arg, alt_name))
+        names_list = cards[card_index]['names']
+        if len(names_list) == 2:
+            cards_pairs_args.append(tuple(names_list))
+        elif len(names_list) == 3:
+            cards_triplets_args.append(tuple(names_list))
     if 'variations' in cards[card_index]:
         for id in cards[card_index]['variations']:
             cards_variations_args.append((name_arg, id))
@@ -241,37 +251,69 @@ for card_index in range(len(cards)):
         for legality in cards[card_index]['legalities']:
             cards_legalities_args.append((name_arg, legality['format'],
                                           legality['legality']))
-execute_batch(db_cursor, ('INSERT INTO cards_staging (name, layout,'
-    'cmc, type, rarity, set, set_name, text,'
-    'flavor, artist, number, power, toughness, loyalty, mana_cost,'
-    'image_url, watermark, border, timeshifted, hand, life,'
-    'reserved, release_date, starter, original_text, original_type,'
-    'source, multiverse_id, id) '
-    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, '
-    '%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'), cards_args)
-execute_batch(db_cursor, ('INSERT INTO cards_color_staging (name,'
-    'color) VALUES (%s, %s)'),list(cards_color_args))
-execute_batch(db_cursor, ('INSERT INTO cards_color_identity_staging'
-    '(name, color) VALUES (%s, %s)'), list(cards_color_identity_args))
-execute_batch(db_cursor, ('INSERT INTO cards_supertypes_staging'
-    '(name, supertype) VALUES (%s, %s)'), list(cards_supertypes_args))
-execute_batch(db_cursor, ('INSERT INTO cards_types_staging'
-    '(name, type) VALUES (%s, %s)'), list(cards_types_args))
-execute_batch(db_cursor, ('INSERT INTO cards_subtypes_staging'
-    '(name, subtype) VALUES (%s, %s)'), list(cards_subtypes_args))
-execute_batch(db_cursor, ('INSERT INTO cards_names_staging'
-    '(name, alt_name) VALUES (%s, %s)'), list(cards_names_args))
-execute_batch(db_cursor, ('INSERT INTO cards_variations_staging'
-    '(name, id) VALUES (%s, %s)'), list(cards_variations_args))
-execute_batch(db_cursor, ('INSERT INTO cards_rulings_staging'
-    '(name, date, text) VALUES (%s, %s, %s)'), list(cards_rulings_args))
-execute_batch(db_cursor, ('INSERT INTO cards_foreign_names_staging'
+execute_batch(
+    db_cursor, (
+        'INSERT INTO cards_staging (name, layout,'
+        'cmc, type, rarity, set, set_name, text,'
+        'flavor, artist, number, power, toughness, loyalty, mana_cost,'
+        'image_url, watermark, border, timeshifted, hand, life,'
+        'reserved, release_date, starter, original_text, original_type,'
+        'source, multiverse_id, id) '
+        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, '
+        '%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+    ), cards_args
+)
+execute_batch(db_cursor, (
+    'INSERT INTO cards_color_staging (name,'
+    'color) VALUES (%s, %s)'
+), list(cards_color_args))
+execute_batch(db_cursor, (
+    'INSERT INTO cards_color_identity_staging'
+    '(name, color) VALUES (%s, %s)'
+), list(cards_color_identity_args))
+execute_batch(db_cursor, (
+    'INSERT INTO cards_supertypes_staging'
+    '(name, supertype) VALUES (%s, %s)'
+), list(cards_supertypes_args))
+execute_batch(db_cursor, (
+    'INSERT INTO cards_types_staging'
+    '(name, type) VALUES (%s, %s)'
+), list(cards_types_args))
+execute_batch(db_cursor, (
+    'INSERT INTO cards_subtypes_staging'
+    '(name, subtype) VALUES (%s, %s)'
+), list(cards_subtypes_args))
+execute_batch(db_cursor, (
+    'INSERT INTO cards_pairs_staging'
+    '(first_card_name, second_card_name) VALUES (%s, %s)'
+), list(cards_pairs_args))
+execute_batch(db_cursor, (
+    'INSERT INTO cards_triplets_staging'
+    '(first_card_name, second_card_name, third_card_name) VALUES (%s, %s, %s)'
+), list(cards_triplets_args))
+execute_batch(db_cursor, (
+    'INSERT INTO cards_variations_staging'
+    '(name, id) VALUES (%s, %s)'
+), list(cards_variations_args))
+execute_batch(db_cursor, (
+    'INSERT INTO cards_rulings_staging'
+    '(name, date, text) VALUES (%s, %s, %s)'
+), list(cards_rulings_args))
+execute_batch(db_cursor, (
+    'INSERT INTO cards_foreign_names_staging'
     '(id, foreign_name, text, flavor, image_url, language, multiverse_id)'
-    'VALUES (%s, %s, %s, %s, %s, %s, %s)'), list(cards_foreign_names_args))
-execute_batch(db_cursor, ('INSERT INTO cards_printings_staging'
-    '(name, set) VALUES (%s, %s)'), list(cards_printings_args))
-execute_batch(db_cursor, ('INSERT INTO cards_legalities_staging'
-    '(name, format, legality) VALUES (%s, %s, %s)'), list(cards_legalities_args))
+    'VALUES (%s, %s, %s, %s, %s, %s, %s)'
+), list(cards_foreign_names_args))
+execute_batch(db_cursor, (
+    'INSERT INTO cards_printings_staging'
+    '(name, set) VALUES (%s, %s)'
+), list(cards_printings_args))
+execute_batch(
+    db_cursor, (
+        'INSERT INTO cards_legalities_staging'
+        '(name, format, legality) VALUES (%s, %s, %s)'
+    ), list(cards_legalities_args)
+)
 if args.verbose:
     print(f'{len(cards_args)} rows inserted into cards table.')
     print(f'{len(cards_color_args)} rows inserted into colors table.')
@@ -281,7 +323,8 @@ if args.verbose:
           f'table.')
     print(f'{len(cards_types_args)} rows inserted into types table.')
     print(f'{len(cards_subtypes_args)} rows inserted into subtypes table.')
-    print(f'{len(cards_names_args)} rows inserted into names table.')
+    print(f'{len(cards_pairs_args)} rows inserted into pairs table.')
+    print(f'{len(cards_triplets_args)} rows inserted into triplets table.')
     print(f'{len(cards_variations_args)} rows inserted into variations'
           f' table.')
     print(f'{len(cards_rulings_args)} rows inserted into rulings table.')
@@ -332,10 +375,13 @@ sets_args = list(map(lambda set: (
     set['online_only'] if 'online_only' in set else False,
     json.dumps(set['booster']) if 'booster' in set else None
 ), sets))
-execute_batch(db_cursor, ('INSERT INTO sets_staging (name, block, code,'
-    'gatherer_code, old_code, magic_cards_info_code, release_date, border,'
-    'expansion, online_only, booster) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, '
-    '%s, %s, %s)'), sets_args)
+execute_batch(
+    db_cursor, (
+        'INSERT INTO sets_staging (name, block, code,'
+        'gatherer_code, old_code, magic_cards_info_code, release_date, border,'
+        'expansion, online_only, booster) VALUES '
+        '(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+    ), sets_args)
 if args.verbose:
     print(f'{len(sets_args)} rows inserted.')
 

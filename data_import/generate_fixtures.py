@@ -4,7 +4,7 @@ import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument('dir', help='Directory to write output files.',
-                    type=str, default='../fixtures')
+                    type=str, default='../cards/fixtures', nargs='?')
 parser.add_argument('-v', '--verbose', help='Print progress messages.',
                     action='store_true')
 args = parser.parse_args()
@@ -336,7 +336,7 @@ generate_fixture_for_model('Language', 'language', language_query,
                            language_generator)
 
 foreign_version_query = '''SELECT DISTINCT id, foreign_name, language,
-multiverse_id, rules_text, flavor_text, image_url FROM 
+multiverse_id, text, flavor, image_url FROM 
 cards_foreign_names_staging'''
 
 
@@ -373,3 +373,70 @@ def ruling_generator(row):
 
 
 generate_fixture_for_model('Ruling', 'ruling', ruling_query, ruling_generator)
+
+flip_card_pair_query = '''SELECT DISTINCT name AS first_card_name,
+second_card_name FROM cards_staging JOIN (SELECT DISTINCT first_card_name,
+second_card_name FROM cards_pairs_staging) AS deduped_cards_pairs_staging ON
+cards_staging.name = deduped_cards_pairs_staging.first_card_name WHERE
+cards_staging.layout = \'transform\''''
+
+
+def flip_card_pair_generator(row):
+    return {
+        'model': 'cards.FlipCardPair',
+        'fields': {
+            'day_side_card': row[0],
+            'night_side_card': row[1]
+        }
+    }
+
+
+generate_fixture_for_model('FlipCardPair', 'flip_card_pair',
+                           flip_card_pair_query, flip_card_pair_generator)
+
+split_card_pair_query = '''SELECT DISTINCT name AS first_card_name,
+second_card_name FROM cards_staging JOIN (SELECT DISTINCT first_card_name,
+second_card_name FROM cards_pairs_staging) AS deduped_cards_pairs_staging ON
+cards_staging.name = deduped_cards_pairs_staging.first_card_name WHERE
+cards_staging.layout = \'split\''''
+
+
+def split_card_pair_generator(row):
+    return {
+        'model': 'cards.SplitCardPair',
+        'fields': {
+            'left_side_card': row[0],
+            'right_side_card': row[1]
+        }
+    }
+
+
+generate_fixture_for_model('SplitCardPair', 'split_card_pair',
+                           split_card_pair_query, split_card_pair_generator)
+
+meld_card_triplet_query = '''SELECT DISTINCT name AS first_card_name,
+second_card_name, third_card_name FROM cards_staging JOIN (SELECT DISTINCT
+first_card_name, second_card_name, third_card_name FROM
+cards_triplets_staging) as deduped_cards_triplets_staging ON
+cards_staging.name = deduped_cards_triplets_staging.first_card_name WHERE
+cards_staging.layout = \'meld\''''
+
+
+def meld_card_triplet_generator(row):
+    return {
+        'model': 'cards.MeldCardTriplet',
+        'fields': {
+            'bottom_card': row[0],
+            'meld_card': row[1],
+            'top_card': row[2]
+        }
+    }
+
+
+generate_fixture_for_model('MeldCardTriplet', 'meld_card_triplet',
+                           meld_card_triplet_query,
+                           meld_card_triplet_generator)
+
+db_conn.commit()
+db_cursor.close()
+db_conn.close()

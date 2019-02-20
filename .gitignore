@@ -2,4 +2,4 @@
 env
 data_import/cards_data.json
 **/__pycache__
-fixtures/*
+**/fixtures/*

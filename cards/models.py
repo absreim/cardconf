@@ -45,15 +45,15 @@ class CardName(models.Model):
     cost = models.CharField(max_length=50)
     cmc = models.IntegerField()
     loyalty = models.CharField(max_length=10)
-    color = models.ManyToManyField(Color, blank=True, null=True,
+    color = models.ManyToManyField(Color, blank=True,
                                    related_name="color_colors")
     color_identity = models.ManyToManyField(
-        Color, blank=True, null=True, related_name="color_identity_colors"
+        Color, blank=True, related_name="color_identity_colors"
     )
     type_line = models.CharField(max_length=200)
     type = models.ManyToManyField(Type)
-    subtype = models.ManyToManyField(Subtype, blank=True, null=True)
-    supertype = models.ManyToManyField(Supertype, blank=True, null=True)
+    subtype = models.ManyToManyField(Subtype, blank=True)
+    supertype = models.ManyToManyField(Supertype, blank=True)
     reserved = models.BooleanField()
 
     def __str__(self):
@@ -200,6 +200,20 @@ class FlipCardPair(models.Model):
         unique_together = ("day_side_card", "night_side_card")
 
 
+class SplitCardPair(models.Model):
+    left_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                      related_name="left_side_card_name")
+    right_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
+                                        related_name="right_side_card_name")
+
+    def __str__(self):
+        return "Left: {0} - Right: {1}".format(self.left_side_card,
+                                              self.right_side_card)
+
+    class Meta:
+        unique_together = ("left_side_card", "right_side_card")
+
+
 class MeldCardTriplet(models.Model):
     top_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
                                  related_name="top_card_name")
@@ -215,4 +229,3 @@ class MeldCardTriplet(models.Model):
 
     class Meta:
         unique_together = ("top_card", "bottom_card", "meld_card")
-

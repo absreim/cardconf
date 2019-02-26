@@ -129,7 +129,7 @@ GROUP BY deduped_cards_staging.name'''
 
 
 def card_name_generator(row):
-    return {
+    card_name_dict = {
         'model': 'cards.CardName',
         'fields': {
             'name': row[0],
@@ -140,15 +140,21 @@ def card_name_generator(row):
             'cost': row[5],
             'cmc': row[6],
             'loyalty': row[7],
-            'color': row[8],
-            'color_identity': row[9],
             'type_line': row[10],
-            'type': row[11],
-            'subtype': row[12],
-            'supertype': row[13],
             'reserved': row[14]
         }
     }
+    if row[8] is not None:
+        card_name_dict['color'] = row[8]
+    if row[9] is not None:
+        card_name_dict['color_identity'] = row[9]
+    if row[11] is not None:
+        card_name_dict['type'] = row[11]
+    if row[12] is not None:
+        card_name_dict['subtype'] = row[12]
+    if row[13] is not None:
+        card_name_dict['supertype'] = row[13]
+    return card_name_dict
 
 
 generate_fixture_for_model('CardName', 'card_name', card_name_query,

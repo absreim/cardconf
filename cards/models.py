@@ -37,7 +37,7 @@ class Subtype(models.Model):
 
 
 class CardName(models.Model):
-    name = models.CharField(max_length=100, primary_key=True)
+    name = models.CharField(max_length=400, primary_key=True)
     layout = models.ForeignKey(Layout, on_delete=models.PROTECT)
     rules_text = models.TextField(blank=True)
     power = models.CharField(max_length=10, blank=True)
@@ -202,13 +202,13 @@ class FlipCardPair(models.Model):
 
 class SplitCardPair(models.Model):
     left_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
-                                      related_name="left_side_card_name")
+                                       related_name="left_side_card_name")
     right_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT,
                                         related_name="right_side_card_name")
 
     def __str__(self):
         return "Left: {0} - Right: {1}".format(self.left_side_card,
-                                              self.right_side_card)
+                                               self.right_side_card)
 
     class Meta:
         unique_together = ("left_side_card", "right_side_card")

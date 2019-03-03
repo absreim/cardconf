@@ -1,6 +1,7 @@
 import argparse
 import psycopg2
 import json
+import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument('dir', help='Directory to write output files.',
@@ -189,6 +190,28 @@ def expansion_generator(row):
 
 generate_fixture_for_model('Expansion', 'expansion', expansion_query,
                            expansion_generator)
+
+addtl_expansion_query = '''SELECT DISTINCT set_name from cards_staging WHERE
+set_name NOT IN (SELECT DISTINCT name FROM sets_staging)'''
+
+child_set_name_matcher = re.compile('^(.+) (Planes|Schemes)$')
+
+
+def addtl_expansion_generator(row):
+    name = row[0]
+    match_obj = child_set_name_matcher.match(name)
+    return {
+        'model': 'cards.Expansion',
+        'fields': {
+            'name': name,
+            'block': '',
+            'parent': match_obj.group(1) if match_obj else None
+        }
+    }
+
+
+generate_fixture_for_model('Expansion', 'addtl_expansion',
+                           addtl_expansion_query, addtl_expansion_generator)
 
 rarity_query = 'SELECT DISTINCT rarity FROM cards_staging'
 

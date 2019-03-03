@@ -71,6 +71,8 @@ class Expansion(models.Model):
     name = models.CharField(max_length=100, primary_key=True)
     block = models.ForeignKey(Block, on_delete=models.PROTECT,
                               blank=True)
+    parent = models.ForeignKey('self', null=True,
+                               related_name="child_expansion")
 
     def __str__(self):
         return self.name

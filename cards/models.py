@@ -72,7 +72,8 @@ class Expansion(models.Model):
     block = models.ForeignKey(Block, on_delete=models.PROTECT,
                               blank=True)
     parent = models.ForeignKey('self', null=True,
-                               related_name="child_expansion")
+                               related_name="child_expansion",
+                               on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -172,9 +173,6 @@ class ForeignVersion(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.foreign_name, self.language)
 
-    class Meta:
-        unique_together = ("edition", "language")
-
 
 class Ruling(models.Model):
     card_name = models.ForeignKey(CardName, on_delete=models.PROTECT)
@@ -183,9 +181,6 @@ class Ruling(models.Model):
 
     def __str__(self):
         return "Ruling: {0} - {1}".format(self.card_name, self.date)
-
-    class Meta:
-        unique_together = ("card_name", "text")
 
 
 class FlipCardPair(models.Model):

@@ -341,7 +341,7 @@ def legality_generator(row):
         'fields': {
             'card_name': row[0],
             'format': row[1],
-            'legality': row[2]
+            'type': row[2]
         }
     }
 
@@ -370,6 +370,9 @@ cards_foreign_names_staging'''
 
 
 def foreign_version_generator(row):
+    rules_text = row[4]
+    flavor_text = row[5]
+    image_url = row[6]
     return {
         'model': 'cards.ForeignVersion',
         'fields': {
@@ -377,9 +380,9 @@ def foreign_version_generator(row):
             'foreign_name': row[1],
             'language': row[2],
             'multiverse_id': row[3],
-            'rules_text': row[4],
-            'flavor_text': row[5],
-            'image_url': row[6]
+            'rules_text': '' if rules_text is None else rules_text,
+            'flavor_text': '' if flavor_text is None else flavor_text,
+            'image_url': '' if image_url is None else image_url
         }
     }
 

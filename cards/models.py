@@ -182,6 +182,9 @@ class Ruling(models.Model):
     def __str__(self):
         return "Ruling: {0} - {1}".format(self.card_name, self.date)
 
+    class Meta:
+        unique_together = ("card_name", "date", "text")
+
 
 class FlipCardPair(models.Model):
     day_side_card = models.ForeignKey(CardName, on_delete=models.PROTECT,

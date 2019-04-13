@@ -7,5 +7,6 @@ verify_ssl = true
 
 [packages]
 django = "*"
-requests = "*"
+graphene-django = "*"
 psycopg2 = "*"
+requests = "*"

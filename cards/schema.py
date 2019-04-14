@@ -2,7 +2,7 @@ import graphene
 
 from graphene_django.types import DjangoObjectType
 
-from cardconf.cards.models import (
+from cards.models import (
     Color, Layout, Supertype, Type, Subtype, CardName, Block, Expansion,
     Rarity, Artist, Watermark, Border, Edition, Format, LegalityType,
     Legality, Language, ForeignVersion, Ruling, FlipCardPair,
@@ -73,6 +73,7 @@ class BorderType(DjangoObjectType):
 class EditionType(DjangoObjectType):
     class Meta:
         model = Edition
+
 
 class FormatType(DjangoObjectType):
     class Meta:

@@ -4,7 +4,7 @@ import cards.schema
 import decks.schema
 
 
-class Query(cards.schema, decks.schema, graphene.ObjectType):
+class Query(cards.schema.Query, decks.schema.Query, graphene.ObjectType):
     pass
 
 

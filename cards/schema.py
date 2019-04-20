@@ -1,6 +1,8 @@
 import graphene
 
-from graphene_django.types import DjangoObjectType
+from graphene import relay
+from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
 
 from cards.models import (
     Color, Layout, Supertype, Type, Subtype, CardName, Block, Expansion,
@@ -10,202 +12,203 @@ from cards.models import (
 )
 
 
-class ColorType(DjangoObjectType):
+class ColorNode(DjangoObjectType):
     class Meta:
         model = Color
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class LayoutType(DjangoObjectType):
+class LayoutNode(DjangoObjectType):
     class Meta:
         model = Layout
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class SupertypeType(DjangoObjectType):
+class SupertypeNode(DjangoObjectType):
     class Meta:
         model = Supertype
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class TypeType(DjangoObjectType):
+class TypeNode(DjangoObjectType):
     class Meta:
         model = Type
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class SubtypeType(DjangoObjectType):
+class SubtypeNode(DjangoObjectType):
     class Meta:
         model = Subtype
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class CardNameType(DjangoObjectType):
+class CardNameNode(DjangoObjectType):
     class Meta:
         model = CardName
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class BlockType(DjangoObjectType):
+class BlockNode(DjangoObjectType):
     class Meta:
         model = Block
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class ExpansionType(DjangoObjectType):
+class ExpansionNode(DjangoObjectType):
     class Meta:
         model = Expansion
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class RarityType(DjangoObjectType):
+class RarityNode(DjangoObjectType):
     class Meta:
         model = Rarity
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class ArtistType(DjangoObjectType):
+class ArtistNode(DjangoObjectType):
     class Meta:
         model = Artist
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class WatermarkType(DjangoObjectType):
+class WatermarkNode(DjangoObjectType):
     class Meta:
         model = Watermark
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class BorderType(DjangoObjectType):
+class BorderNode(DjangoObjectType):
     class Meta:
         model = Border
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class EditionType(DjangoObjectType):
+class EditionNode(DjangoObjectType):
     class Meta:
         model = Edition
+        filter_fields = ['card_name']
+        interfaces = (relay.Node,)
 
 
-class FormatType(DjangoObjectType):
+class FormatNode(DjangoObjectType):
     class Meta:
         model = Format
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class LegalityTypeType(DjangoObjectType):
+class LegalityTypeNode(DjangoObjectType):
     class Meta:
         model = LegalityType
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class LegalityGrapheneType(DjangoObjectType):
+class LegalityNode(DjangoObjectType):
     class Meta:
         model = Legality
+        filter_fields = ['card_name']
+        interfaces = (relay.Node,)
 
 
-class LanguageType(DjangoObjectType):
+class LanguageNode(DjangoObjectType):
     class Meta:
         model = Language
+        filter_fields = ['name']
+        interfaces = (relay.Node,)
 
 
-class ForeignVersionType(DjangoObjectType):
+class ForeignVersionNode(DjangoObjectType):
     class Meta:
         model = ForeignVersion
+        filter_fields = ['edition']
+        interfaces = (relay.Node,)
 
 
-class RulingType(DjangoObjectType):
+class RulingNode(DjangoObjectType):
     class Meta:
         model = Ruling
+        filter_fields = ['card_name']
+        interfaces = (relay.Node,)
 
 
-class FlipCardPairType(DjangoObjectType):
+class FlipCardPairNode(DjangoObjectType):
     class Meta:
         model = FlipCardPair
+        filter_fields = []
+        interfaces = (relay.Node,)
 
 
-class SplitCardPairType(DjangoObjectType):
+class SplitCardPairNode(DjangoObjectType):
     class Meta:
         model = SplitCardPair
+        filter_fields = []
+        interfaces = (relay.Node,)
 
 
-class MeldCardTripletType(DjangoObjectType):
+class MeldCardTripletNode(DjangoObjectType):
     class Meta:
         model = MeldCardTriplet
+        filter_fields = []
+        interfaces = (relay.Node,)
 
 
 class Query(object):
-    all_colors = graphene.List(ColorType)
-    all_layouts = graphene.List(LayoutType)
-    all_supertypes = graphene.List(SupertypeType)
-    all_types = graphene.List(TypeType)
-    all_subtypes = graphene.List(SubtypeType)
-    all_cardnames = graphene.List(CardNameType)
-    all_blocks = graphene.List(BlockType)
-    all_expansions = graphene.List(ExpansionType)
-    all_rarities = graphene.List(RarityType)
-    all_artists = graphene.List(ArtistType)
-    all_watermarks = graphene.List(WatermarkType)
-    all_borders = graphene.List(BorderType)
-    all_editions = graphene.List(EditionType)
-    all_formats = graphene.List(FormatType)
-    all_legality_types = graphene.List(LegalityTypeType)
-    all_legalities = graphene.List(LegalityGrapheneType)
-    all_languages = graphene.List(LanguageType)
-    all_foreign_versions = graphene.List(ForeignVersionType)
-    all_rulings = graphene.List(RulingType)
-    all_flip_card_pairs = graphene.List(FlipCardPairType)
-    all_split_card_pairs = graphene.List(SplitCardPairType)
-    all_meld_card_triplets = graphene.List(MeldCardTripletType)
+    color = relay.Node.Field(ColorNode)
+    layout = relay.Node.Field(LayoutNode)
+    supertype = relay.Node.Field(SupertypeNode)
+    type = relay.Node.Field(TypeNode)
+    subtypes = relay.Node.Field(SubtypeNode)
+    card_name = relay.Node.Field(CardNameNode)
+    block = relay.Node.Field(BlockNode)
+    expansion = relay.Node.Field(ExpansionNode)
+    rarity = relay.Node.Field(RarityNode)
+    artist = relay.Node.Field(ArtistNode)
+    watermark = relay.Node.Field(WatermarkNode)
+    border = relay.Node.Field(BorderNode)
+    edition = relay.Node.Field(EditionNode)
+    format = relay.Node.Field(FormatNode)
+    legality_type = relay.Node.Field(LegalityTypeNode)
+    legality = relay.Node.Field(LegalityNode)
+    language = relay.Node.Field(LanguageNode)
+    foreign_version = relay.Node.Field(ForeignVersionNode)
+    ruling = relay.Node.Field(RulingNode)
+    flip_card_pair = relay.Node.Field(FlipCardPairNode)
+    split_card_pair = relay.Node.Field(SplitCardPairNode)
+    meld_card_triplet = relay.Node.Field(MeldCardTripletNode)
 
-    def resolve_all_colors(self, info, **kwargs):
-        return Color.objects.all()
-
-    def resolve_all_layouts(self, info, **kwargs):
-        return Layout.objects.all()
-
-    def resolve_all_supertypes(self, info, **kwargs):
-        return Supertype.objects.all()
-
-    def resolve_all_types(self, info, **kwargs):
-        return Type.objects.all()
-
-    def resolve_all_subtypes(self, info, **kwargs):
-        return Subtype.objects.all()
-
-    def resolve_all_cardnames(self, info, **kwargs):
-        return CardName.objects.all()
-
-    def resolve_all_blocks(self, info, **kwargs):
-        return Block.objects.all()
-
-    def resolve_all_expansions(self, info, **kwargs):
-        return Expansion.objects.all()
-
-    def resolve_all_rarities(self, info, **kwargs):
-        return Rarity.objects.all()
-
-    def resolve_all_artists(self, info, **kwargs):
-        return Artist.objects.all()
-
-    def resolve_all_watermarks(self, info, **kwargs):
-        return Watermark.objects.all()
-
-    def resolve_all_borders(self, info, **kwargs):
-        return Border.objects.all()
-
-    def resolve_all_editions(self, info, **kwargs):
-        return Edition.objects.all()
-
-    def resolve_all_formats(self, info, **kwargs):
-        return Format.objects.all()
-
-    def resolve_all_legality_types(self, info, **kwargs):
-        return LegalityType.objects.all()
-
-    def resolve_all_legalities(self, info, **kwargs):
-        return Legality.objects.all()
-
-    def resolve_all_languages(self, info, **kwargs):
-        return Language.objects.all()
-
-    def resolve_all_foreign_versions(self, info, **kwargs):
-        return ForeignVersion.objects.all()
-
-    def resolve_all_rulings(self, info, **kwargs):
-        return Ruling.objects.all()
-
-    def resolve_all_flip_card_pairs(self, info, **kwargs):
-        return FlipCardPair.objects.all()
-
-    def resolve_all_split_card_pairs(self, info, **kwargs):
-        return SplitCardPair.objects.all()
-
-    def resolve_all_meld_card_triplets(self, info, **kwargs):
-        return MeldCardTriplet.objects.all()
+    all_colors = DjangoFilterConnectionField(ColorNode)
+    all_layouts = DjangoFilterConnectionField(LayoutNode)
+    all_supertypes = DjangoFilterConnectionField(SupertypeNode)
+    all_types = DjangoFilterConnectionField(TypeNode)
+    all_subtypes = DjangoFilterConnectionField(SubtypeNode)
+    all_card_names = DjangoFilterConnectionField(CardNameNode)
+    all_blocks = DjangoFilterConnectionField(BlockNode)
+    all_expansions = DjangoFilterConnectionField(ExpansionNode)
+    all_rarities = DjangoFilterConnectionField(RarityNode)
+    all_artists = DjangoFilterConnectionField(ArtistNode)
+    all_watermarks = DjangoFilterConnectionField(WatermarkNode)
+    all_borders = DjangoFilterConnectionField(BorderNode)
+    all_editions = DjangoFilterConnectionField(EditionNode)
+    all_formats = DjangoFilterConnectionField(FormatNode)
+    all_legality_types = DjangoFilterConnectionField(LegalityTypeNode)
+    all_legalities = DjangoFilterConnectionField(LegalityNode)
+    all_languages = DjangoFilterConnectionField(LanguageNode)
+    all_foreign_versions = DjangoFilterConnectionField(ForeignVersionNode)
+    all_rulings = DjangoFilterConnectionField(RulingNode)
+    all_flip_card_pairs = DjangoFilterConnectionField(FlipCardPairNode)
+    all_split_card_pairs = DjangoFilterConnectionField(SplitCardPairNode)
+    all_meld_card_triplets = DjangoFilterConnectionField(MeldCardTripletNode)

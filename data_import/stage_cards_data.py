@@ -126,6 +126,14 @@ db_cursor.execute('''CREATE TABLE cards_triplets_staging (
     third_card_name varchar(400)
     )''')
 
+colorSymbolToName = {
+    'W': 'White',
+    'U': 'Blue',
+    'B': 'Black',
+    'R': 'Red',
+    'G': 'Green'
+}
+
 cards = data['cards']
 cards_args = [None for _ in range(len(cards))]
 cards_color_args = deque()
@@ -212,8 +220,10 @@ for card_index in range(len(cards)):
         for color in cards[card_index]['colors']:
             cards_color_args.append((name_arg, color))
     if 'colorIdentity' in cards[card_index]:
-        for color in cards[card_index]['colorIdentity']:
-            cards_color_identity_args.append((name_arg, color))
+        for colorSymbol in cards[card_index]['colorIdentity']:
+            cards_color_identity_args.append((
+                name_arg, colorSymbolToName[colorSymbol]
+            ))
     if 'supertypes' in cards[card_index]:
         for supertype in cards[card_index]['supertypes']:
             cards_supertypes_args.append((name_arg, supertype))

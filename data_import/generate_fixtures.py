@@ -100,33 +100,64 @@ def subtype_generator(row):
     }
 
 
-generate_fixture_for_model('Subtype', 'subtype', subtype_query, subtype_generator)
+generate_fixture_for_model(
+    'Subtype', 'subtype', subtype_query, subtype_generator
+)
 
-card_name_query = '''SELECT deduped_cards_staging.name, max(layout), 
-max(text), max(power), max(toughness), max(mana_cost), max(cmc), 
-max(loyalty), array_agg(deduped_cards_color_staging.color), 
-array_agg(deduped_cards_color_identity_staging.color), 
-max(deduped_cards_staging.type), array_agg(deduped_cards_types_staging.type),
-array_agg(subtype), array_agg(supertype), bool_or(reserved) 
-FROM (SELECT DISTINCT ON (name) * FROM cards_staging) AS 
+card_name_query = '''SELECT deduped_cards_staging.name AS name,
+layout, text, power, toughness, mana_cost, cmc, loyalty,
+name_to_color_array.colors AS colors,
+name_to_color_identity_array.colors AS color_identity_colors,
+deduped_cards_staging.type AS type_line,
+name_to_type_array.types AS types, name_to_subtype_array.subtypes AS subtypes,
+name_to_supertype_array.supertypes AS supertypes, reserved 
+FROM (SELECT DISTINCT ON (name) * FROM cards_staging) AS
     deduped_cards_staging
-LEFT JOIN (SELECT DISTINCT ON (name, color) * from cards_color_staging) AS 
-    deduped_cards_color_staging ON deduped_cards_staging.name = 
-    deduped_cards_color_staging.name 
-LEFT JOIN (SELECT DISTINCT ON (name, color) * FROM 
-    cards_color_identity_staging) AS deduped_cards_color_identity_staging 
-    ON deduped_cards_staging.name = 
-    deduped_cards_color_identity_staging.name 
-JOIN (SELECT DISTINCT ON (name, type) * FROM cards_types_staging) AS 
-    deduped_cards_types_staging on deduped_cards_staging.name = 
-    deduped_cards_types_staging.name 
-LEFT JOIN (SELECT DISTINCT ON (name, subtype) * FROM cards_subtypes_staging) AS
-    deduped_cards_subtypes_staging ON 
-    deduped_cards_staging.name = deduped_cards_subtypes_staging.name 
-LEFT JOIN (SELECT DISTINCT ON (name, supertype) * FROM 
-    cards_supertypes_staging) AS deduped_cards_supertypes_staging ON 
-    deduped_cards_staging.name = deduped_cards_supertypes_staging.name 
-GROUP BY deduped_cards_staging.name'''
+LEFT JOIN (
+    SELECT deduped_cards_color_staging.name AS name,
+        array_agg(deduped_cards_color_staging.color) AS colors
+    FROM (
+        SELECT DISTINCT name, color from cards_color_staging
+    ) AS deduped_cards_color_staging
+    GROUP BY deduped_cards_color_staging.name
+) AS name_to_color_array
+    ON deduped_cards_staging.name = name_to_color_array.name
+LEFT JOIN (
+    SELECT deduped_cards_color_identity_staging.name AS name,
+        array_agg(color) AS colors
+    FROM (
+        SELECT DISTINCT name, color from cards_color_identity_staging
+    ) AS deduped_cards_color_identity_staging
+    GROUP BY deduped_cards_color_identity_staging.name
+) AS name_to_color_identity_array
+    ON deduped_cards_staging.name = name_to_color_identity_array.name 
+JOIN (
+    SELECT deduped_cards_types_staging.name as name,
+        array_agg(deduped_cards_types_staging.type) as types
+    FROM (
+        SELECT DISTINCT * FROM cards_types_staging
+    ) AS deduped_cards_types_staging
+    GROUP BY deduped_cards_types_staging.name
+) AS name_to_type_array
+    ON deduped_cards_staging.name = name_to_type_array.name
+LEFT JOIN (
+    SELECT deduped_cards_subtypes_staging.name as name,
+        array_agg(deduped_cards_subtypes_staging.subtype) as subtypes
+    FROM (
+        SELECT DISTINCT * FROM cards_subtypes_staging
+    ) AS deduped_cards_subtypes_staging
+    GROUP BY deduped_cards_subtypes_staging.name
+) AS name_to_subtype_array
+    ON deduped_cards_staging.name = name_to_subtype_array.name 
+LEFT JOIN (
+    SELECT deduped_cards_supertypes_staging.name as name,
+        array_agg(deduped_cards_supertypes_staging.supertype) as supertypes
+    FROM (
+        SELECT DISTINCT * FROM cards_supertypes_staging
+    ) AS deduped_cards_supertypes_staging
+    GROUP BY deduped_cards_supertypes_staging.name
+) AS name_to_supertype_array
+    ON deduped_cards_staging.name = name_to_supertype_array.name'''
 
 
 def card_name_generator(row):
@@ -146,15 +177,15 @@ def card_name_generator(row):
         }
     }
     if row[8] is not None:
-        card_name_dict['color'] = row[8]
+        card_name_dict['fields']['color'] = row[8]
     if row[9] is not None:
-        card_name_dict['color_identity'] = row[9]
+        card_name_dict['fields']['color_identity'] = row[9]
     if row[11] is not None:
-        card_name_dict['type'] = row[11]
+        card_name_dict['fields']['type'] = row[11]
     if row[12] is not None:
-        card_name_dict['subtype'] = row[12]
+        card_name_dict['fields']['subtype'] = row[12]
     if row[13] is not None:
-        card_name_dict['supertype'] = row[13]
+        card_name_dict['fields']['supertype'] = row[13]
     return card_name_dict
 
 

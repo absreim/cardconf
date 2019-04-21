@@ -5,7 +5,7 @@ from cards.models import Edition
 
 
 class Deck(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=255)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     card_in_deck = models.ManyToManyField(Edition, through='CardInDeck')
 

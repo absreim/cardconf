@@ -2,55 +2,55 @@ from django.db import models
 
 
 class Color(models.Model):
-    name = models.CharField(max_length=20, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
 
 
 class Layout(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
 
 
 class Supertype(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
 
 
 class Type(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
 
 
 class Subtype(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
 
 
 class CardName(models.Model):
-    name = models.CharField(max_length=400, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
     layout = models.ForeignKey(Layout, on_delete=models.PROTECT)
     rules_text = models.TextField(blank=True)
-    power = models.CharField(max_length=10, blank=True)
-    toughness = models.CharField(max_length=10, blank=True)
-    cost = models.CharField(max_length=50)
+    power = models.CharField(max_length=255, blank=True)
+    toughness = models.CharField(max_length=255, blank=True)
+    cost = models.CharField(max_length=255)
     cmc = models.IntegerField()
-    loyalty = models.CharField(max_length=10)
+    loyalty = models.CharField(max_length=255)
     color = models.ManyToManyField(Color, blank=True,
                                    related_name="color_colors")
     color_identity = models.ManyToManyField(
         Color, blank=True, related_name="color_identity_colors"
     )
-    type_line = models.CharField(max_length=200)
+    type_line = models.CharField(max_length=255)
     type = models.ManyToManyField(Type)
     subtype = models.ManyToManyField(Subtype, blank=True)
     supertype = models.ManyToManyField(Supertype, blank=True)
@@ -61,14 +61,14 @@ class CardName(models.Model):
 
 
 class Block(models.Model):
-    name = models.CharField(max_length=100, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
 
 
 class Expansion(models.Model):
-    name = models.CharField(max_length=100, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
     block = models.ForeignKey(Block, on_delete=models.PROTECT,
                               blank=True)
     parent = models.ForeignKey('self', null=True,
@@ -80,28 +80,28 @@ class Expansion(models.Model):
 
 
 class Rarity(models.Model):
-    name = models.CharField(max_length=20, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
 
 
 class Artist(models.Model):
-    name = models.CharField(max_length=100, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
 
 
 class Watermark(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
 
 
 class Border(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
@@ -111,8 +111,8 @@ class Edition(models.Model):
     card_name = models.ForeignKey(CardName, on_delete=models.PROTECT)
     expansion_name = models.ForeignKey(Expansion, on_delete=models.PROTECT)
     artist = models.ForeignKey(Artist, on_delete=models.PROTECT)
-    number = models.CharField(max_length=10)
-    image_url = models.CharField(max_length=200, blank=True)
+    number = models.CharField(max_length=255)
+    image_url = models.CharField(max_length=255, blank=True)
     flavor_text = models.TextField(blank=True)
     rarity = models.ForeignKey(Rarity, on_delete=models.PROTECT)
     multiverse_id = models.IntegerField(blank=True, null=True)
@@ -120,22 +120,22 @@ class Edition(models.Model):
                                   blank=True, null=True)
     border = models.ForeignKey(Border, on_delete=models.PROTECT)
     source = models.TextField(blank=True)
-    promo_release_date = models.CharField(max_length=20, blank=True)
-    id = models.CharField(max_length=100, primary_key=True)
+    promo_release_date = models.CharField(max_length=255, blank=True)
+    id = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return "{0} - {1}".format(self.card_name, self.expansion_name)
 
 
 class Format(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
 
 
 class LegalityType(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
@@ -155,7 +155,7 @@ class Legality(models.Model):
 
 
 class Language(models.Model):
-    name = models.CharField(max_length=100, primary_key=True)
+    name = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return self.name
@@ -163,12 +163,12 @@ class Language(models.Model):
 
 class ForeignVersion(models.Model):
     edition = models.ForeignKey(Edition, on_delete=models.PROTECT)
-    foreign_name = models.CharField(max_length=400)
+    foreign_name = models.CharField(max_length=255)
     language = models.ForeignKey(Language, on_delete=models.PROTECT)
     multiverse_id = models.IntegerField(blank=True, null=True)
     rules_text = models.TextField(blank=True)
     flavor_text = models.TextField(blank=True)
-    image_url = models.CharField(max_length=200, blank=True)
+    image_url = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return "{0} - {1}".format(self.foreign_name, self.language)

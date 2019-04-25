@@ -194,7 +194,7 @@ for card_index in range(len(cards)):
         cards[card_index] else False
     release_date_arg = cards[card_index]['releaseDate'] if \
         'releaseDate' in cards[card_index] else ''
-    starter_arg = cards[card_index]['starter'] if 'stater' in \
+    starter_arg = cards[card_index]['starter'] if 'starter' in \
         cards[card_index] else False
     original_text_arg = cards[card_index]['originalText'] if \
         'originalText' in cards[card_index] else ''

@@ -132,8 +132,8 @@ LEFT JOIN (
 ) AS name_to_color_identity_array
     ON deduped_cards_staging.name = name_to_color_identity_array.name 
 JOIN (
-    SELECT deduped_cards_types_staging.name as name,
-        array_agg(deduped_cards_types_staging.type) as types
+    SELECT deduped_cards_types_staging.name AS name,
+        array_agg(deduped_cards_types_staging.type) AS types
     FROM (
         SELECT DISTINCT * FROM cards_types_staging
     ) AS deduped_cards_types_staging
@@ -141,8 +141,8 @@ JOIN (
 ) AS name_to_type_array
     ON deduped_cards_staging.name = name_to_type_array.name
 LEFT JOIN (
-    SELECT deduped_cards_subtypes_staging.name as name,
-        array_agg(deduped_cards_subtypes_staging.subtype) as subtypes
+    SELECT deduped_cards_subtypes_staging.name AS name,
+        array_agg(deduped_cards_subtypes_staging.subtype) AS subtypes
     FROM (
         SELECT DISTINCT * FROM cards_subtypes_staging
     ) AS deduped_cards_subtypes_staging
@@ -150,8 +150,8 @@ LEFT JOIN (
 ) AS name_to_subtype_array
     ON deduped_cards_staging.name = name_to_subtype_array.name 
 LEFT JOIN (
-    SELECT deduped_cards_supertypes_staging.name as name,
-        array_agg(deduped_cards_supertypes_staging.supertype) as supertypes
+    SELECT deduped_cards_supertypes_staging.name AS name,
+        array_agg(deduped_cards_supertypes_staging.supertype) AS supertypes
     FROM (
         SELECT DISTINCT * FROM cards_supertypes_staging
     ) AS deduped_cards_supertypes_staging
